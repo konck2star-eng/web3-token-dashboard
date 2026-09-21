@@ -1,222 +1,314 @@
 # Web3 Token Dashboard
 
-基于 React + TypeScript + Ethers.js + MetaMask 构建的 EVM 多链 ERC-20 DApp。
+一个基于 **React + TypeScript + Ethers.js + MetaMask** 构建的 Web3 Token Dashboard，用于实践 EVM 链上的钱包连接、链上资产读取、ERC-20 Token 转账、多链切换以及交易状态管理。
 
-本项目用于实践 Web3 前端开发中的钱包连接、EVM 网络切换、链上数据读取、智能合约交互、ERC-20 Token 转账、交易状态管理以及异常处理。
+## 🚀 在线体验
 
-## 项目简介
+**Live Demo**
 
-项目模拟一个轻量级 Web3 Token Dashboard，用户可以通过 MetaMask 连接钱包，并在 Ethereum Sepolia 与 Base Sepolia 两个 EVM 测试网络之间切换。
+https://konck2star-eng.github.io/web3-token-dashboard/
 
-连接钱包后，可以查看：
+**GitHub**
 
-* 当前钱包地址
-* ETH 余额
-* 当前网络
-* Chain ID
-* ERC-20 Token 名称
-* Token Symbol
-* Token Balance
+https://github.com/konck2star-eng/web3-token-dashboard
+
+> 支持 Ethereum Sepolia 与 Base Sepolia 测试网络，建议使用安装了 MetaMask 的浏览器体验。
+
+---
+
+## ✨ 核心功能
+
+### 钱包连接
+
+* 连接 MetaMask 钱包
+* 获取当前钱包地址
+* 读取 ETH 余额
+* 监听钱包账户变化
+* 监听当前网络变化
+* 支持前端退出 DApp 会话
+
+### ERC-20 Token
+
+* 读取 Token 名称
+* 读取 Token Symbol
+* 读取 Token Decimal
+* 查询当前钱包 MTK 余额
+* 调用 ERC-20 `transfer()` 完成 Token 转账
+* 转账完成后自动刷新余额
+
+### 多链支持
+
+目前支持：
+
+| 网络               |   Chain ID | Token 合约                                     |
+| ---------------- | ---------: | -------------------------------------------- |
+| Ethereum Sepolia | `11155111` | `0xbBfc07FB4758c87057453978f14f52f59CCc808b` |
+| Base Sepolia     |    `84532` | `0x3f163397f7FFbE8E99438F4A07BCB9E995c3a21b` |
+
+前端根据当前 `Chain ID` 动态加载对应的：
+
+* RPC 配置
 * Token 合约地址
+* 区块浏览器地址
+* 网络名称
 
-同时支持 ERC-20 Token 转账，并通过交易哈希查看链上交易。
+### 交易状态管理
 
-## 技术栈
+Token 转账流程包含：
 
-| 技术               | 用途          |
-| ---------------- | ----------- |
-| React            | 前端 UI 与组件开发 |
-| TypeScript       | 类型安全        |
-| Vite             | 前端构建与开发     |
-| Ethers.js 6      | 区块链交互       |
-| MetaMask         | 钱包连接与交易签名   |
-| Solidity         | ERC-20 智能合约 |
-| OpenZeppelin     | ERC-20 标准实现 |
-| Remix IDE        | 合约编译与部署     |
-| Ethereum Sepolia | EVM 测试网络    |
-| Base Sepolia     | EVM 测试网络    |
+* 转账参数校验
+* 钱包网络校验
+* 收款地址校验
+* 防止向当前账户自身转账
+* Token 数量校验
+* 余额校验
+* MetaMask 用户拒绝交易处理
+* 交易提交状态展示
+* 等待链上确认
+* Transaction Hash 保存
+* 区块浏览器跳转
+* 交易成功后自动刷新 Token 余额
 
-## 核心功能
+---
 
-### 1. 钱包连接
+## 🛠 技术栈
 
-通过 MetaMask 连接用户钱包。
+### Frontend
 
-核心流程：
+* React
+* TypeScript
+* Vite
+* HTML5
+* CSS3
 
-```text
-React
-  ↓
-Ethers.js
-  ↓
-MetaMask
-  ↓
-eth_requestAccounts
-  ↓
-获取钱包地址
-```
+### Web3
 
-### 2. 钱包数据读取
+* Ethers.js
+* MetaMask
+* Ethereum
+* Base
+* EVM
+* ERC-20
 
-连接钱包后读取：
+### Smart Contract
 
-```text
-Wallet Address
-ETH Balance
-Chain ID
-```
+* Solidity
+* OpenZeppelin ERC-20
+* Remix
+* Hardhat
+* Sepolia
+* Base Sepolia
 
-通过 Ethers.js Provider 查询链上余额。
+### Deployment
 
-### 3. EVM 多链支持
+* GitHub
+* GitHub Actions
+* GitHub Pages
 
-当前支持：
+---
 
-| Network          | Chain ID |
-| ---------------- | -------: |
-| Ethereum Sepolia | 11155111 |
-| Base Sepolia     |    84532 |
-
-前端根据 Chain ID 自动加载对应网络配置和 Token 合约。
-
-网络切换流程：
+## 🏗 技术架构
 
 ```text
-用户选择网络
-    ↓
-wallet_switchEthereumChain
-    ↓
-MetaMask 确认
-    ↓
-更新 Chain ID
-    ↓
-重新读取链上数据
+┌─────────────────────────────┐
+│        React + TypeScript   │
+│                             │
+│  WalletCard                 │
+│  TokenCard                  │
+│  TransferForm               │
+│  Toast                      │
+└──────────────┬──────────────┘
+               │
+               │ Ethers.js
+               ▼
+┌─────────────────────────────┐
+│          MetaMask           │
+│                             │
+│   Provider / Signer         │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│         EVM Network          │
+│                             │
+│ Ethereum Sepolia             │
+│ Base Sepolia                 │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│      MyToken ERC-20         │
+│                             │
+│ balanceOf()                 │
+│ transfer()                  │
+└─────────────────────────────┘
 ```
 
-如果 MetaMask 尚未添加对应网络，则通过 `wallet_addEthereumChain` 请求添加。
+---
 
-### 4. ERC-20 Token 数据读取
+## 🔗 Web3 交互流程
 
-通过智能合约 ABI 调用：
+### 1. 连接钱包
+
+前端通过 `window.ethereum` 获取 MetaMask 注入的 Provider：
+
+```ts
+const provider = new BrowserProvider(window.ethereum);
+```
+
+然后请求用户连接钱包：
+
+```ts
+await window.ethereum.request({
+  method: "eth_requestAccounts",
+});
+```
+
+---
+
+### 2. 读取账户信息
+
+连接成功后，通过 Ethers.js 获取当前钱包地址：
+
+```ts
+const signer = await provider.getSigner();
+const address = await signer.getAddress();
+```
+
+同时读取 ETH 余额：
+
+```ts
+const balance = await provider.getBalance(address);
+```
+
+通过：
+
+```ts
+formatEther(balance)
+```
+
+将 Wei 转换成人类可读的 ETH 数量。
+
+---
+
+### 3. 创建 ERC-20 Contract
+
+前端根据当前网络加载对应的 Token 合约：
+
+```ts
+const contract = new Contract(
+  tokenAddress,
+  tokenAbi,
+  provider
+);
+```
+
+通过 `Contract` 实例调用智能合约方法。
+
+---
+
+### 4. 读取 Token 余额
+
+调用 ERC-20 标准接口：
+
+```ts
+const rawBalance = await contract.balanceOf(address);
+```
+
+再结合 Token 的 decimals：
+
+```ts
+formatUnits(rawBalance, decimals);
+```
+
+最终得到用户可以直接阅读的 Token 余额。
+
+---
+
+### 5. 发起 Token 转账
+
+需要用户签名的交易不能只使用 Provider，因此前端获取 Signer：
+
+```ts
+const signer = await provider.getSigner();
+```
+
+然后使用连接了 Signer 的 Contract：
+
+```ts
+const contract = new Contract(
+  tokenAddress,
+  tokenAbi,
+  signer
+);
+```
+
+Token 数量通过：
+
+```ts
+parseUnits(amount, decimals);
+```
+
+进行精度转换，然后调用：
+
+```ts
+const tx = await contract.transfer(
+  recipient,
+  tokenAmount
+);
+```
+
+---
+
+### 6. 等待交易确认
+
+交易提交后先获取 Transaction Hash：
+
+```ts
+tx.hash
+```
+
+然后等待区块链确认：
+
+```ts
+await tx.wait();
+```
+
+确认完成后重新读取 Token 余额，使前端状态与链上状态保持同步。
+
+---
+
+## 🔐 Provider、Signer、Contract
+
+这个项目中三个核心 Web3 对象分别承担不同职责：
+
+| 对象       | 主要作用               |
+| -------- | ------------------ |
+| Provider | 连接区块链、读取链上数据       |
+| Signer   | 代表当前钱包签名并发送交易      |
+| Contract | 根据 ABI 与合约地址调用智能合约 |
+
+可以简单理解为：
 
 ```text
-name()
-symbol()
-decimals()
-balanceOf(address)
+Provider
+   ↓
+只读链上数据
+
+Signer
+   ↓
+钱包签名 / 发起交易
+
+Contract
+   ↓
+通过 ABI 调用智能合约
 ```
 
-实现 Token 信息和余额展示。
+---
 
-### 5. ERC-20 Token 转账
+## 📦 ERC-20 Smart Contract
 
-支持用户填写：
-
-```text
-接收钱包地址
-转账数量
-```
-
-提交前进行参数校验：
-
-```text
-地址是否为空
-    ↓
-地址格式是否合法
-    ↓
-是否转给自己
-    ↓
-金额是否为空
-    ↓
-金额是否大于 0
-    ↓
-Token 余额是否充足
-    ↓
-检查当前网络
-```
-
-验证通过后，通过 MetaMask 发起链上交易。
-
-完整交易流程：
-
-```text
-输入参数
-    ↓
-前端校验
-    ↓
-获取 Signer
-    ↓
-调用 ERC-20 transfer()
-    ↓
-MetaMask 签名
-    ↓
-获取 Transaction Hash
-    ↓
-tx.wait()
-    ↓
-区块确认
-    ↓
-更新 Token Balance
-```
-
-### 6. 交易状态
-
-页面展示交易生命周期：
-
-```text
-等待 MetaMask 确认
-        ↓
-交易已提交
-        ↓
-等待区块确认
-        ↓
-交易成功
-```
-
-同时保存最近一次交易哈希，可以直接跳转对应区块浏览器。
-
-### 7. 钱包状态监听
-
-监听 MetaMask：
-
-```text
-accountsChanged
-chainChanged
-```
-
-当用户切换账户时自动重新读取钱包和 Token 数据。
-
-当用户切换网络时自动刷新对应链上数据。
-
-### 8. Toast 消息系统
-
-针对 Web3 常见操作提供：
-
-```text
-Success
-Error
-Info
-```
-
-例如：
-
-```text
-钱包连接成功
-正在切换网络
-请在 MetaMask 中确认交易
-交易已提交
-MTK 转账成功
-Token 余额不足
-你取消了 MetaMask 签名
-```
-
-### 9. 钱包地址复制
-
-支持一键复制钱包地址，提高钱包类产品的操作效率。
-
-## 智能合约
-
-项目使用 Solidity 编写 ERC-20 Token 合约：
+项目使用 OpenZeppelin ERC-20 实现 Token：
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -233,13 +325,13 @@ contract MyToken is ERC20 {
 
 Token 信息：
 
-```text
-Name: My Token
-Symbol: MTK
-Initial Supply: 1,000,000 MTK
-```
+* Name：`My Token`
+* Symbol：`MTK`
+* Initial Supply：`1,000,000 MTK`
 
-## 合约地址
+---
+
+## 🔗 合约地址
 
 ### Ethereum Sepolia
 
@@ -261,10 +353,15 @@ BaseScan：
 
 https://sepolia.basescan.org/address/0x3f163397f7FFbE8E99438F4A07BCB9E995c3a21b
 
-## 项目结构
+---
+
+## 📁 项目结构
 
 ```text
 web3-token-dashboard/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
 │
 ├── contracts/
 │   └── MyToken.sol
@@ -273,7 +370,6 @@ web3-token-dashboard/
 │   └── deploy.js
 │
 ├── src/
-│   │
 │   ├── components/
 │   │   ├── WalletCard.tsx
 │   │   ├── TokenCard.tsx
@@ -285,282 +381,198 @@ web3-token-dashboard/
 │   ├── index.css
 │   └── main.tsx
 │
+├── .gitignore
 ├── hardhat.config.js
 ├── package.json
 ├── package-lock.json
+├── tsconfig.json
+├── vite.config.ts
 └── README.md
 ```
 
-## React 组件设计
+---
 
-项目按照功能进行组件拆分：
+## ⚙️ 本地运行
 
-```text
-App
-│
-├── WalletCard
-│
-├── TokenCard
-│
-├── TransferForm
-│
-└── Toast
+### 1. 克隆项目
+
+```bash
+git clone https://github.com/konck2star-eng/web3-token-dashboard.git
 ```
 
-### WalletCard
+进入项目目录：
 
-负责：
-
-* 钱包地址展示
-* 钱包地址复制
-* ETH 余额
-* Chain ID
-
-### TokenCard
-
-负责：
-
-* Token 名称
-* Token Symbol
-* Token Balance
-* 当前网络
-* Token 合约地址
-* 区块浏览器跳转
-
-### TransferForm
-
-负责：
-
-* 接收地址输入
-* Token 数量输入
-* 参数校验
-* 网络校验
-* Token 余额校验
-* MetaMask 签名
-* ERC-20 Transfer
-* Transaction Hash
-* 交易确认
-* Token 余额更新
-
-### Toast
-
-负责：
-
-* 成功消息
-* 错误消息
-* 操作提示
-
-## Web3 核心代码
-
-### 创建 Provider
-
-```ts
-const provider = new BrowserProvider(
-  window.ethereum
-);
+```bash
+cd web3-token-dashboard
 ```
 
-### 请求钱包连接
-
-```ts
-await provider.send(
-  "eth_requestAccounts",
-  []
-);
-```
-
-### 获取 Signer
-
-```ts
-const signer =
-  await provider.getSigner();
-```
-
-### 创建合约实例
-
-```ts
-const tokenContract =
-  new Contract(
-    tokenAddress,
-    tokenAbi,
-    signer
-  );
-```
-
-### 查询 Token 余额
-
-```ts
-const balance =
-  await tokenContract.balanceOf(
-    walletAddress
-  );
-```
-
-### 执行 Token 转账
-
-```ts
-const tx =
-  await tokenContract.transfer(
-    recipient,
-    amount
-  );
-```
-
-### 等待交易确认
-
-```ts
-await tx.wait();
-```
-
-## 本地运行
-
-安装依赖：
+### 2. 安装依赖
 
 ```bash
 npm install
 ```
 
-启动开发服务器：
+### 3. 启动开发环境
 
 ```bash
 npm run dev
 ```
 
-默认访问：
+启动后访问：
 
 ```text
-http://localhost:5173
+http://localhost:5173/
 ```
 
-构建项目：
+---
+
+## ✅ 已验证功能
+
+目前已经在测试网络完成实际验证：
+
+```text
+✅ MetaMask 钱包连接
+
+✅ 钱包地址读取
+
+✅ ETH 余额读取
+
+✅ MTK Token 余额读取
+
+✅ Ethereum Sepolia 支持
+
+✅ Base Sepolia 支持
+
+✅ Sepolia / Base Sepolia 网络切换
+
+✅ ERC-20 Token 转账
+
+✅ MetaMask 交易签名
+
+✅ Transaction Hash 获取
+
+✅ 等待链上交易确认
+
+✅ 转账成功后余额自动更新
+
+✅ Etherscan / BaseScan 交易查询
+
+✅ GitHub Actions 自动构建
+
+✅ GitHub Pages 在线部署
+```
+
+---
+
+## 🚀 CI/CD
+
+项目使用 GitHub Actions 完成前端自动部署。
+
+当代码推送到 `main` 分支后：
+
+```text
+git push
+   ↓
+GitHub Repository
+   ↓
+GitHub Actions
+   ↓
+npm ci
+   ↓
+npm run build
+   ↓
+生成 dist
+   ↓
+GitHub Pages
+   ↓
+线上 DApp
+```
+
+因此修改前端代码后，只需要：
 
 ```bash
-npm run build
+git add .
+git commit -m "your commit message"
+git push
 ```
 
-## 使用说明
+GitHub Actions 即可自动执行构建和部署。
 
-### Ethereum Sepolia
+---
 
-需要在 MetaMask 中准备 Sepolia 测试 ETH，用于支付交易 Gas。
+## 💡 项目实践重点
 
-### Base Sepolia
+这个项目重点实践了 Web3 前端开发中比较核心的几个场景：
 
-需要在 MetaMask 中准备 Base Sepolia 测试 ETH，用于支付交易 Gas。
+### 钱包交互
 
-## 项目亮点
+理解 DApp 前端如何通过浏览器钱包连接用户账户，以及如何监听账户和网络变化。
 
-### React 组件化
+### 链上数据读取
 
-将钱包、Token、转账和消息提示拆分为独立组件，提高代码可维护性。
+通过 Provider 和 Contract 读取账户余额、Token 信息以及 ERC-20 状态。
 
-### EVM 多链
+### 链上交易
 
-通过 Chain ID 管理不同 EVM 网络，并动态加载对应智能合约。
+理解从前端发起交易，到 MetaMask 用户签名，再到区块链确认的完整流程。
 
-### Web3 钱包交互
+### Token 精度
 
-通过 MetaMask 完成：
+使用 `parseUnits()` 与 `formatUnits()` 处理 ERC-20 Token 的 decimals，避免直接使用 JavaScript 浮点数造成精度问题。
 
-```text
-连接钱包
-账户切换
-网络切换
-交易签名
-```
+### 多链适配
 
-### 链上交易状态
+通过 Chain ID 区分不同 EVM 网络，并动态加载对应的 RPC、Contract Address 与 Explorer。
 
-使用：
+### 前端状态管理
 
-```text
-Transaction Hash
-+
-tx.wait()
-```
+根据钱包连接、网络切换、交易提交、交易确认等不同状态更新 UI。
 
-跟踪链上交易从提交到确认的过程。
+---
 
-### 异常处理
+## 📸 项目预览
 
-覆盖常见 Web3 前端异常：
+> 项目已经部署到 GitHub Pages，可以直接通过下面的链接体验。
 
-```text
-MetaMask 未安装
-用户拒绝连接
-用户取消交易
-网络不匹配
-地址格式错误
-金额错误
-余额不足
-网络切换失败
-交易失败
-```
+**在线 Demo：**
 
-## 项目截图
+https://konck2star-eng.github.io/web3-token-dashboard/
 
-后续补充：
+后续可以在这里补充项目截图：
 
 ```text
 docs/
 ├── dashboard.png
-├── wallet.png
-├── transfer.png
-└── transaction.png
+├── wallet-connected.png
+├── token-transfer.png
+└── transaction-success.png
 ```
 
-## 学习与实践目标
+添加截图后，可以在 README 中使用：
 
-本项目重点实践：
+```markdown
+![Dashboard](./docs/dashboard.png)
 
-```text
-React
-    ↓
-TypeScript
-    ↓
-Ethers.js
-    ↓
-MetaMask
-    ↓
-EVM
-    ↓
-Solidity
-    ↓
-ERC-20
-    ↓
-Smart Contract
-    ↓
-On-chain Transaction
+![Wallet Connected](./docs/wallet-connected.png)
+
+![Token Transfer](./docs/token-transfer.png)
+
+![Transaction Success](./docs/transaction-success.png)
 ```
 
-通过该项目实践 Web3 前端从 UI 到钱包、智能合约和链上交易的完整交互流程。
+---
 
-## 后续计划
+## 📌 后续规划
 
-* 多钱包适配
-* Gas 预估
-* 交易历史记录
-* Token 添加与管理
-* 更多 EVM 网络
-* 更完善的交易通知
-* 项目线上部署
+* 增加更多 EVM 网络
+* 支持更多 Token
+* 增加交易历史查询
+* 增加 Gas 信息展示
+* 增加多钱包连接支持
+* 增加更多链上数据可视化能力
 
-## Author
+---
 
-Web3 / Blockchain Developer
+## 📄 License
 
-主要技术方向：
-
-```text
-React
-TypeScript
-Ethers.js
-Solidity
-Ethereum
-EVM
-Web3
-Spring Boot
-MySQL
-Redis
-Docker
-```
+MIT
